@@ -1,4 +1,4 @@
-ScalableMDP
-===========
+jmdp
+====
 
-Scalable (and distributed) solvers for Markov Decsion Processes (MDPs).
+Scalable (and distributed) solvers and utilities for working with Markov Decsion Processes (MDPs) implemented in pure Java.
