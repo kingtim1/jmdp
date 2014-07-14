@@ -50,7 +50,7 @@ public interface VFunction<S> {
 	 * @param <S> the state type
 	 * @param <A> the action type
 	 */
-	public static class GreedyQ<S,A> implements VFunction<S>{
+	public static class GreedyQ<S,A> implements VFunction<S>, Policy<S,A>{
 
 		private QFunction<S,A> _qfunc;
 		
@@ -61,6 +61,11 @@ public interface VFunction<S> {
 		@Override
 		public double value(S state, Long timestep) {
 			return _qfunc.greedyValue(state, timestep);
+		}
+
+		@Override
+		public A policy(S state, Long timestep) {
+			return _qfunc.greedyAction(state, timestep);
 		}
 		
 	}

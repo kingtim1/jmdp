@@ -68,6 +68,19 @@ public interface QFunction<S, A> {
 	public double greedyValue(S state, Long timestep);
 
 	/**
+	 * Returns one of the actions that optimize the action-value for the
+	 * specified state and timestep.
+	 * 
+	 * @param state
+	 *            a state
+	 * @param timestep
+	 *            a non-negative value representing the timestep
+	 * @return an action that optimizes the action-value function given a state
+	 *         and timestep
+	 */
+	public A greedyAction(S state, Long timestep);
+
+	/**
 	 * Returns a value function defined by the greedy value at each state.
 	 * 
 	 * @return a value function defined by the greedy value at each state

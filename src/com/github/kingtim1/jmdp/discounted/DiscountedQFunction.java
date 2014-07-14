@@ -42,5 +42,7 @@ public interface DiscountedQFunction<S, A> extends QFunction<S, A> {
 	
 	public double greedyValue(S state);
 	
+	public A greedyAction(S state);
+	
 	public DiscountedVFunction<S> greedy();
 }

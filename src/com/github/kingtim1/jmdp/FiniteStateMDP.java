@@ -75,7 +75,7 @@ public interface FiniteStateMDP<S, A> extends MDP<S, A> {
 	/**
 	 * Returns an iterable instance over all successor states. This method
 	 * allows an MDP to specify a subset of successor states. When the successor
-	 * states is unknown this method can simply return an iterable instance over
+	 * states are unknown this method can simply return an iterable instance over
 	 * all states.
 	 * 
 	 * @param state

@@ -27,6 +27,7 @@
 
 package com.github.kingtim1.jmdp.discounted;
 
+import com.github.kingtim1.jmdp.DeterministicPolicy;
 import com.github.kingtim1.jmdp.VFunction;
 
 /**
@@ -54,7 +55,7 @@ public interface DiscountedVFunction<S> extends VFunction<S> {
 	 * @param <S> the state type
 	 * @param <A> the action type
 	 */
-	public static class GreedyQ<S,A> implements DiscountedVFunction<S> {
+	public static class GreedyQ<S,A> extends DeterministicPolicy<S,A> implements DiscountedVFunction<S> {
 		
 		private DiscountedQFunction<S,A> _qfunc;
 		
@@ -70,6 +71,11 @@ public interface DiscountedVFunction<S> extends VFunction<S> {
 		@Override
 		public double value(S state) {
 			return _qfunc.greedyValue(state);
+		}
+
+		@Override
+		public A policy(S state) {
+			return _qfunc.greedyAction(state);
 		}
 		
 	}
