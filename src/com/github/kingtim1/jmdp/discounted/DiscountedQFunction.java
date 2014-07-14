@@ -25,7 +25,9 @@
 
  */
 
-package com.github.kingtim1.jmdp;
+package com.github.kingtim1.jmdp.discounted;
+
+import com.github.kingtim1.jmdp.QFunction;
 
 /**
  * Represents an action-value function for a discounted-reinforcement MDP.

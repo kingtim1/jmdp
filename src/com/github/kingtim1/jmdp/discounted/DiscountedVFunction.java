@@ -25,7 +25,9 @@
 
  */
 
-package com.github.kingtim1.jmdp;
+package com.github.kingtim1.jmdp.discounted;
+
+import com.github.kingtim1.jmdp.VFunction;
 
 /**
  * Represents a value function for a discounted-reinforcement MDP. The key difference between
