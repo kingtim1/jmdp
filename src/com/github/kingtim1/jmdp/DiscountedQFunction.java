@@ -1,5 +1,5 @@
 /**
-	RBoundedMDP.java
+	DiscountedQFunction.java
 
 	===================================================================
 
@@ -25,26 +25,20 @@
 
  */
 
-package org.github.kingtim1.jmdp;
+package com.github.kingtim1.jmdp;
 
 /**
- * Represents an MDP with bounded immediate reinforcements.
+ * Represents an action-value function for a discounted-reinforcement MDP.
  * @author Timothy A. Mann
  *
  * @param <S> the state type
- * @param <A> the primitive action type
+ * @param <A> the action type
  */
-public interface RBoundedMDP<S,A> extends MDP<S,A> {
+public interface DiscountedQFunction<S, A> extends QFunction<S, A> {
+
+	public double value(S state, A action);
 	
-	/**
-	 * Returns the maximum possible immediate reinforcement for this MDP.
-	 * @return maximum possible immediate reinforcement
-	 */
-	public double rmax();
+	public double greedyValue(S state);
 	
-	/**
-	 * Returns the minimum possible immediate reinforcement for this MDP.
-	 * @return minimum possible immediate reinforcement
-	 */
-	public double rmin();
+	public DiscountedVFunction<S> greedy();
 }

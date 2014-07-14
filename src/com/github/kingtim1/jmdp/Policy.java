@@ -1,5 +1,5 @@
 /**
-	FiniteHorizonPolicy.java
+	Policy.java
 
 	===================================================================
 
@@ -25,20 +25,29 @@
 
  */
 
-package org.github.kingtim1.jmdp;
+package com.github.kingtim1.jmdp;
 
 /**
- * Represents a non-stationary policy defined over a finite horizon.
+ * Represents a policy. Policies decide which action to execute given the
+ * current state and timestep. This interface is a stub for all policies.
+ * 
  * @author Timothy A. Mann
- *
- * @param <S> the state type
- * @param <A> the action type
+ * 
+ * @param <S>
+ *            the state type
+ * @param <A>
+ *            the action type
  */
-public interface FiniteHorizonPolicy<S, A> extends Policy<S, A> {
-	
+public interface Policy<S, A> {
+
 	/**
-	 * The number of timesteps this policy is defined for.
-	 * @return the horizon of this policy
+	 * Selects an action-based on a given state and the current timestep. The
+	 * rules used to select an action may be stochastic or deterministic.
+	 * 
+	 * @param state a state
+	 * @param timestep the non-negative value representing a timestep
+	 * @return an action
 	 */
-	public int horizon();
+	public A policy(S state, Long timestep);
+	
 }

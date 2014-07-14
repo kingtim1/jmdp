@@ -1,4 +1,4 @@
-package org.github.kingtim1.jmdp.util;
+package com.github.kingtim1.jmdp.util;
 
 import java.util.Map;
 

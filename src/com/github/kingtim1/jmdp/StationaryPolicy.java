@@ -25,7 +25,7 @@
 
  */
 
-package org.github.kingtim1.jmdp;
+package com.github.kingtim1.jmdp;
 
 /**
  * A stationary policy decides which action conditional only on the current

@@ -25,9 +25,9 @@
 
  */
 
-package org.github.kingtim1.jmdp;
+package com.github.kingtim1.jmdp;
 
-import org.github.kingtim1.jmdp.util.Optimization;
+import com.github.kingtim1.jmdp.util.Optimization;
 
 /**
  * Represents an action-value function for a stationary policy in an MDP.

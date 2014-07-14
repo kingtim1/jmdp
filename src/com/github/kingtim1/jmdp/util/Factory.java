@@ -1,4 +1,4 @@
-package org.github.kingtim1.jmdp.util;
+package com.github.kingtim1.jmdp.util;
 
 /**
  * A factory can generate new instances of a type with zero parameters.

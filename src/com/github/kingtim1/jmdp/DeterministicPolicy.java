@@ -1,5 +1,5 @@
 /**
-	DiscountedQFunction.java
+	DeterministicPolicy.java
 
 	===================================================================
 
@@ -25,20 +25,38 @@
 
  */
 
-package org.github.kingtim1.jmdp;
+package com.github.kingtim1.jmdp;
 
 /**
- * Represents an action-value function for a discounted-reinforcement MDP.
+ * Represents a deterministic, stationary policy. A deterministic policy is
+ * simply a mapping from states to actions.
+ * 
  * @author Timothy A. Mann
- *
- * @param <S> the state type
- * @param <A> the action type
+ * 
+ * @param <S>
+ *            the state type
+ * @param <A>
+ *            the action type
  */
-public interface DiscountedQFunction<S, A> extends QFunction<S, A> {
+public abstract class DeterministicPolicy<S, A> implements
+		StationaryPolicy<S, A> {
 
-	public double value(S state, A action);
-	
-	public double greedyValue(S state);
-	
-	public DiscountedVFunction<S> greedy();
+	public DeterministicPolicy() {
+	}
+
+	@Override
+	public A policy(S state, Long timestep) {
+		return policy(state);
+	}
+
+	@Override
+	public double aprob(S state, A action) {
+		return action.equals(policy(state)) ? 1 : 0;
+	}
+
+	@Override
+	public boolean isDeterministic() {
+		return true;
+	}
+
 }

@@ -1,5 +1,5 @@
 /**
-	Policy.java
+	RBoundedMDP.java
 
 	===================================================================
 
@@ -25,29 +25,26 @@
 
  */
 
-package org.github.kingtim1.jmdp;
+package com.github.kingtim1.jmdp;
 
 /**
- * Represents a policy. Policies decide which action to execute given the
- * current state and timestep. This interface is a stub for all policies.
- * 
+ * Represents an MDP with bounded immediate reinforcements.
  * @author Timothy A. Mann
- * 
- * @param <S>
- *            the state type
- * @param <A>
- *            the action type
+ *
+ * @param <S> the state type
+ * @param <A> the primitive action type
  */
-public interface Policy<S, A> {
-
-	/**
-	 * Selects an action-based on a given state and the current timestep. The
-	 * rules used to select an action may be stochastic or deterministic.
-	 * 
-	 * @param state a state
-	 * @param timestep the non-negative value representing a timestep
-	 * @return an action
-	 */
-	public A policy(S state, Long timestep);
+public interface RBoundedMDP<S,A> extends MDP<S,A> {
 	
+	/**
+	 * Returns the maximum possible immediate reinforcement for this MDP.
+	 * @return maximum possible immediate reinforcement
+	 */
+	public double rmax();
+	
+	/**
+	 * Returns the minimum possible immediate reinforcement for this MDP.
+	 * @return minimum possible immediate reinforcement
+	 */
+	public double rmin();
 }

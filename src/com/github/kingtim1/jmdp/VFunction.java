@@ -1,5 +1,5 @@
 /**
-	DiscountedVFunction.java
+	VFunction.java
 
 	===================================================================
 
@@ -25,25 +25,23 @@
 
  */
 
-package org.github.kingtim1.jmdp;
+package com.github.kingtim1.jmdp;
 
 /**
- * Represents a value function for a discounted-reinforcement MDP. The key difference between
- * a discounted and undiscounted value function is that the value of a state in
- * a discounted MDP does not depend on the timestep.
- * 
+ * Represents the value function of a policy in an MDP.
  * @author Timothy A. Mann
- * 
+ *
  * @param <S> the state type
  */
-public interface DiscountedVFunction<S> extends VFunction<S> {
-	
+public interface VFunction<S> {
+
 	/**
-	 * Returns the long-term value of a specified state.
+	 * Returns the value of a state.
 	 * @param state a state
-	 * @return the long-term value of <code>state</code>
+	 * @param timestep a non-negative value representing the timestep
+	 * @return the long-term value of the state
 	 */
-	public double value(S state);
+	public double value(S state, Long timestep);
 	
 	/**
 	 * Implements a state value function by taking the greedy value of an action-value function.
@@ -52,24 +50,18 @@ public interface DiscountedVFunction<S> extends VFunction<S> {
 	 * @param <S> the state type
 	 * @param <A> the action type
 	 */
-	public static class GreedyQ<S,A> implements DiscountedVFunction<S> {
+	public static class GreedyQ<S,A> implements VFunction<S>{
+
+		private QFunction<S,A> _qfunc;
 		
-		private DiscountedQFunction<S,A> _qfunc;
-		
-		public GreedyQ(DiscountedQFunction<S,A> qfunc){
+		public GreedyQ(QFunction<S,A> qfunc){
 			_qfunc = qfunc;
 		}
 		
 		@Override
 		public double value(S state, Long timestep) {
-			return value(state);
-		}
-
-		@Override
-		public double value(S state) {
-			return _qfunc.greedyValue(state);
+			return _qfunc.greedyValue(state, timestep);
 		}
 		
 	}
-
 }

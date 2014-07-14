@@ -1,4 +1,4 @@
-package org.github.kingtim1.jmdp.util;
+package com.github.kingtim1.jmdp.util;
 
 /**
  * Represents the two possible optimization objectives: MINIMIZE or MAXIMIZE.

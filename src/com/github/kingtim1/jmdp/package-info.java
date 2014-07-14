@@ -6,4 +6,4 @@
  * @author Timothy A. Mann
  *
  */
-package org.github.kingtim1.jmdp;
+package com.github.kingtim1.jmdp;

@@ -1,5 +1,5 @@
 /**
-	DeterministicPolicy.java
+	FiniteHorizonPolicy.java
 
 	===================================================================
 
@@ -25,38 +25,20 @@
 
  */
 
-package org.github.kingtim1.jmdp;
+package com.github.kingtim1.jmdp;
 
 /**
- * Represents a deterministic, stationary policy. A deterministic policy is
- * simply a mapping from states to actions.
- * 
+ * Represents a non-stationary policy defined over a finite horizon.
  * @author Timothy A. Mann
- * 
- * @param <S>
- *            the state type
- * @param <A>
- *            the action type
+ *
+ * @param <S> the state type
+ * @param <A> the action type
  */
-public abstract class DeterministicPolicy<S, A> implements
-		StationaryPolicy<S, A> {
-
-	public DeterministicPolicy() {
-	}
-
-	@Override
-	public A policy(S state, Long timestep) {
-		return policy(state);
-	}
-
-	@Override
-	public double aprob(S state, A action) {
-		return action.equals(policy(state)) ? 1 : 0;
-	}
-
-	@Override
-	public boolean isDeterministic() {
-		return true;
-	}
-
+public interface FiniteHorizonPolicy<S, A> extends Policy<S, A> {
+	
+	/**
+	 * The number of timesteps this policy is defined for.
+	 * @return the horizon of this policy
+	 */
+	public int horizon();
 }
