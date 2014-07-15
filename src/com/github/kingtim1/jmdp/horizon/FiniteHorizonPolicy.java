@@ -25,19 +25,26 @@
 
  */
 
-package com.github.kingtim1.jmdp;
+package com.github.kingtim1.jmdp.horizon;
+
+import com.github.kingtim1.jmdp.Policy;
 
 /**
- * Represents a non-stationary policy defined over a finite horizon.
+ * Represents a non-stationary, deterministic policy defined over a finite
+ * horizon.
+ * 
  * @author Timothy A. Mann
  *
- * @param <S> the state type
- * @param <A> the action type
+ * @param <S>
+ *            the state type
+ * @param <A>
+ *            the action type
  */
 public interface FiniteHorizonPolicy<S, A> extends Policy<S, A> {
-	
+
 	/**
 	 * The number of timesteps this policy is defined for.
+	 * 
 	 * @return the horizon of this policy
 	 */
 	public int horizon();

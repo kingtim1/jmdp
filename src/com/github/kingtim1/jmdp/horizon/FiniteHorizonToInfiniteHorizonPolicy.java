@@ -25,7 +25,9 @@
 
  */
 
-package com.github.kingtim1.jmdp;
+package com.github.kingtim1.jmdp.horizon;
+
+import com.github.kingtim1.jmdp.Policy;
 
 /**
  * Converts a finite-horizon policy into an infinite horizon policy be cycling
