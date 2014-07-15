@@ -27,16 +27,20 @@
 
 package com.github.kingtim1.jmdp;
 
-import com.github.kingtim1.jmdp.util.Optimization;
 
 /**
- * Represents a discrete-time Markov Decision Process model.
+ * Represents a discrete-time Markov Decision Process model, which is a special
+ * case of Semi-Markov Decision Processes (SMDPs) where all actions execute for
+ * only a single timestep.
+ * 
  * @author Timothy A. Mann
  *
- * @param <S> the state type
- * @param <A> the action type
+ * @param <S>
+ *            the state type
+ * @param <A>
+ *            the action type
  */
-public interface MDP<S, A> {
+public interface MDP<S, A> extends SMDP<S, A> {
 	/**
 	 * Returns the expected immediate reinforcement (reward/cost) associated
 	 * with the observation (state, action, nextState).
@@ -65,11 +69,4 @@ public interface MDP<S, A> {
 	 */
 	public double tprob(S state, A action, S nextState);
 
-	/**
-	 * Returns the optimization type associated with this MDP (MINIMIZE or
-	 * MAXIMIZE the reinforcement signal).
-	 * 
-	 * @return the optimization type of this MDP
-	 */
-	public Optimization opType();
 }
