@@ -64,7 +64,7 @@ public interface DiscountedVFunction<S> extends VFunction<S> {
 		}
 		
 		@Override
-		public double value(S state, Long timestep) {
+		public double value(S state, Integer timestep) {
 			return value(state);
 		}
 

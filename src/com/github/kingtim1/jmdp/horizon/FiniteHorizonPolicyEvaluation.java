@@ -64,18 +64,18 @@ public class FiniteHorizonPolicyEvaluation<S, A> implements DP<VFunction<S>> {
 			for (S state : states) {
 				double v = 0;
 				if (h == horizon - 1) {
-					v = rPi(state, new Long(h));
+					v = rPi(state, h);
 				}else{
-					v = rPi(state, new Long(h)) + avgV(state, new Long(h), vfunc);
+					v = rPi(state, h) + avgV(state, h, vfunc);
 				}
-				vfunc.set(state, new Long(h), v);
+				vfunc.set(state, h, v);
 			}
 		}
 
 		return vfunc;
 	}
 
-	private double rPi(S state, Long timestep) {
+	private double rPi(S state, Integer timestep) {
 		double ravg = 0;
 
 		A action = _policy.policy(state, timestep);
@@ -89,13 +89,13 @@ public class FiniteHorizonPolicyEvaluation<S, A> implements DP<VFunction<S>> {
 		return ravg;
 	}
 	
-	private double avgV(S state, Long timestep, VFunction<S> vfunc){
+	private double avgV(S state, Integer timestep, VFunction<S> vfunc){
 		double avgV = 0;
 		A action = _policy.policy(state, timestep);
 		Iterable<S> nextStates = _mdp.successors(state, action);
 		for( S nextState : nextStates){
 			double tprob = _mdp.tprob(state, action, nextState);
-			avgV += tprob * vfunc.value(nextState, new Long(timestep + 1));
+			avgV += tprob * vfunc.value(nextState, timestep + 1);
 		}
 		return avgV;
 	}

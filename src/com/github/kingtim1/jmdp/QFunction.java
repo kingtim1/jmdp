@@ -52,7 +52,7 @@ public interface QFunction<S, A> {
 	 *            a non-negative value representing the timestep
 	 * @return the long-term value of the specified state-action pair
 	 */
-	public double value(S state, A action, Long timestep);
+	public double value(S state, A action, Integer timestep);
 
 	/**
 	 * Returns the greedy value for a given state. This returns the "best" value
@@ -65,7 +65,7 @@ public interface QFunction<S, A> {
 	 *            a non-negative value representing the timestep
 	 * @return the best long-term value of this state over all valid actions
 	 */
-	public double greedyValue(S state, Long timestep);
+	public double greedyValue(S state, Integer timestep);
 
 	/**
 	 * Returns one of the actions that optimize the action-value for the
@@ -78,7 +78,7 @@ public interface QFunction<S, A> {
 	 * @return an action that optimizes the action-value function given a state
 	 *         and timestep
 	 */
-	public A greedyAction(S state, Long timestep);
+	public A greedyAction(S state, Integer timestep);
 
 	/**
 	 * Returns a value function defined by the greedy value at each state.

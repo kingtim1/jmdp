@@ -83,7 +83,7 @@ public class MapVFunction<S> implements VFunction<S> {
 	}
 
 	@Override
-	public double value(S state, Long timestep) {
+	public double value(S state, Integer timestep) {
 		try {
 			Map<S, Double> vmap = _values.get(timestep.intValue());
 			Double v = vmap.get(state);
@@ -109,7 +109,7 @@ public class MapVFunction<S> implements VFunction<S> {
 	 * @param value
 	 *            the value of the state at the specified timestep
 	 */
-	public void set(S state, Long timestep, double value) {
+	public void set(S state, Integer timestep, double value) {
 		try {
 			Map<S, Double> vmap = _values.get(timestep.intValue());
 			vmap.put(state, value);

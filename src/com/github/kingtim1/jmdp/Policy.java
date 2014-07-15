@@ -48,6 +48,6 @@ public interface Policy<S, A> {
 	 * @param timestep the non-negative value representing a timestep
 	 * @return an action
 	 */
-	public A policy(S state, Long timestep);
+	public A policy(S state, Integer timestep);
 	
 }

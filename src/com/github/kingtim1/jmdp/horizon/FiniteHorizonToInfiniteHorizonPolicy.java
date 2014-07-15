@@ -56,8 +56,8 @@ public class FiniteHorizonToInfiniteHorizonPolicy<S, A> implements Policy<S, A> 
 	}
 
 	@Override
-	public A policy(S state, Long timestep) {
-		long t = timestep % _policy.horizon();
+	public A policy(S state, Integer timestep) {
+		int t = timestep % _policy.horizon();
 		return _policy.policy(state, t);
 	}
 

@@ -45,7 +45,7 @@ public abstract class DeterministicPolicy<S, A> implements
 	}
 
 	@Override
-	public A policy(S state, Long timestep) {
+	public A policy(S state, Integer timestep) {
 		return policy(state);
 	}
 

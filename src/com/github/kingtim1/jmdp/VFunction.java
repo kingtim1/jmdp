@@ -41,7 +41,7 @@ public interface VFunction<S> {
 	 * @param timestep a non-negative value representing the timestep
 	 * @return the long-term value of the state
 	 */
-	public double value(S state, Long timestep);
+	public double value(S state, Integer timestep);
 	
 	/**
 	 * Implements a state value function by taking the greedy value of an action-value function.
@@ -59,12 +59,12 @@ public interface VFunction<S> {
 		}
 		
 		@Override
-		public double value(S state, Long timestep) {
+		public double value(S state, Integer timestep) {
 			return _qfunc.greedyValue(state, timestep);
 		}
 
 		@Override
-		public A policy(S state, Long timestep) {
+		public A policy(S state, Integer timestep) {
 			return _qfunc.greedyAction(state, timestep);
 		}
 		
