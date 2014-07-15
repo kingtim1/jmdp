@@ -50,6 +50,10 @@ public class MapVFunction<S> implements DiscountedVFunction<S> {
 		_defaultValue = defaultValue;
 	}
 	
+	public MapVFunction(double defaultValue){
+		this(new HashMap<S,Double>(), defaultValue);
+	}
+	
 	@Override
 	public double value(S state, Long timestep) {
 		return value(state);
@@ -65,4 +69,12 @@ public class MapVFunction<S> implements DiscountedVFunction<S> {
 		}
 	}
 
+	/**
+	 * Sets the value at a specified state.
+	 * @param state a state
+	 * @param value the value of the state
+	 */
+	public void set(S state, double value){
+		_values.put(state, value);
+	}
 }
