@@ -1,5 +1,5 @@
 /**
-	IterativePolicyEvaluation.java
+	ValueIteration.java
 
 	===================================================================
 
@@ -29,11 +29,12 @@ package com.github.kingtim1.jmdp.discounted;
 
 import com.github.kingtim1.jmdp.DP;
 import com.github.kingtim1.jmdp.FiniteStateMDP;
-import com.github.kingtim1.jmdp.StationaryPolicy;
 
 /**
- * An iterative version of the policy evaluation algorithm using asynchronous
- * backups.
+ * Implements the classic Value Iteration (VI) algorithm with asynchronous
+ * updates. VI starts with an arbitrary estimate of the optimal value function
+ * and converges to the optimal value function as the number of iterations goes
+ * to infinity.
  * 
  * @author Timothy A. Mann
  *
@@ -42,22 +43,17 @@ import com.github.kingtim1.jmdp.StationaryPolicy;
  * @param <A>
  *            the action type
  */
-public class IterativePolicyEvaluation<S, A> implements
-		DP<DiscountedVFunction<S>> {
+public class ValueIteration<S, A> implements DP<DiscountedVFunction<S>> {
 
 	private FiniteStateMDP<S, A> _mdp;
 	private DiscountFactor _df;
-	private StationaryPolicy<S, A> _policy;
 	private int _maxIterations;
 	private double _theta;
 
-	public IterativePolicyEvaluation(FiniteStateMDP<S, A> mdp,
-			DiscountFactor df, StationaryPolicy<S, A> policy,
+	public ValueIteration(FiniteStateMDP<S, A> mdp, DiscountFactor df,
 			int maxIterations, double convergenceThreshold) {
 		_mdp = mdp;
 		_df = df;
-		_policy = policy;
-
 		_maxIterations = maxIterations;
 		_theta = convergenceThreshold;
 	}
@@ -85,56 +81,26 @@ public class IterativePolicyEvaluation<S, A> implements
 	}
 
 	/**
-	 * Performs a single Bellman backup according to the dynamics of the MDP and
-	 * stationary policy.
+	 * Returns the greedy Bellman backup operator for a specified state.
 	 * 
 	 * @param state
 	 *            a state
 	 * @param vfunc
-	 *            the current estimate of the value function
-	 * @return the resulting Bellman backup
+	 *            an estimate of the optimal value function
+	 * @return a new estimate of the optimal value of state
 	 */
-	private double backup(S state, DiscountedVFunction<S> vfunc) {
-		return rPi(state) + _df.doubleValue() * avgNextV(state, vfunc);
-	}
-
-	private double avgNextV(S state, DiscountedVFunction<S> vfunc) {
-		if (_policy.isDeterministic()) {
-			A action = _policy.policy(state);
-			return FiniteStateMDP.avgNextV(_mdp, state, action, vfunc);
-		} else {
-			double avgV = 0;
-			Iterable<A> actions = _mdp.actions(state);
-			for (A action : actions) {
-				double aprob = _policy.aprob(state, action);
-				avgV += aprob * FiniteStateMDP.avgNextV(_mdp, state, action, vfunc);
+	public double backup(S state, DiscountedVFunction<S> vfunc) {
+		Double bestV = null;
+		Iterable<A> actions = _mdp.actions(state);
+		for (A action : actions) {
+			double val = FiniteStateMDP.avgR(_mdp, state, action)
+					+ _df.doubleValue()
+					* FiniteStateMDP.avgNextV(_mdp, state, action, vfunc);
+			if (bestV == null || _mdp.opType().firstIsBetter(val, bestV)) {
+				bestV = val;
 			}
-			return avgV;
 		}
+		return bestV.doubleValue();
 	}
-
-	/**
-	 * Returns the expected reinforcement at a specified state given the
-	 * distribution over actions selected by the policy.
-	 * 
-	 * @param state
-	 *            a state
-	 * @return the expected reinforcement at the specified state
-	 */
-	private double rPi(S state) {
-		if (_policy.isDeterministic()) {
-			A action = _policy.policy(state);
-			return FiniteStateMDP.avgR(_mdp, state, action);
-		} else {
-			double ravg = 0;
-			Iterable<A> actions = _mdp.actions(state);
-			for (A action : actions) {
-				double aprob = _policy.aprob(state, action);
-				ravg += aprob * FiniteStateMDP.avgR(_mdp, state, action);
-			}
-			return ravg;
-		}
-	}
-
 
 }

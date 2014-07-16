@@ -29,6 +29,8 @@ package com.github.kingtim1.jmdp;
 
 import java.util.Collection;
 
+import com.github.kingtim1.jmdp.discounted.DiscountedVFunction;
+
 /**
  * Represents a finite-state, finite-action MDP.
  * 
@@ -39,14 +41,14 @@ import java.util.Collection;
  * @param <A>
  *            the action type
  */
-public interface FiniteStateMDP<S, A> extends MDP<S, A> {
+public abstract class FiniteStateMDP<S, A> implements MDP<S, A> {
 
 	/**
 	 * Returns an iterable instance over all the states in this MDP.
 	 * 
 	 * @return an iterable instance over all states
 	 */
-	public Iterable<S> states();
+	public abstract Iterable<S> states();
 
 	/**
 	 * Returns a collection of all the valid actions at a specified state.
@@ -55,14 +57,14 @@ public interface FiniteStateMDP<S, A> extends MDP<S, A> {
 	 *            a state
 	 * @return the collection of valid actions
 	 */
-	public Collection<A> actions(S state);
+	public abstract Collection<A> actions(S state);
 
 	/**
 	 * The number of states in this MDP.
 	 * 
 	 * @return the total number of states
 	 */
-	public int numberOfStates();
+	public abstract int numberOfStates();
 
 	/**
 	 * The number of different actions in this MDP. However, there may be fewer
@@ -70,13 +72,13 @@ public interface FiniteStateMDP<S, A> extends MDP<S, A> {
 	 * 
 	 * @return the total number of actions
 	 */
-	public int numberOfActions();
+	public abstract int numberOfActions();
 
 	/**
 	 * Returns an iterable instance over all successor states. This method
 	 * allows an MDP to specify a subset of successor states. When the successor
-	 * states are unknown this method can simply return an iterable instance over
-	 * all states.
+	 * states are unknown this method can simply return an iterable instance
+	 * over all states.
 	 * 
 	 * @param state
 	 *            a state
@@ -84,5 +86,48 @@ public interface FiniteStateMDP<S, A> extends MDP<S, A> {
 	 *            an action
 	 * @return an iterable instance over next states
 	 */
-	public Iterable<S> successors(S state, A action);
+	public abstract Iterable<S> successors(S state, A action);
+
+	/**
+	 * Returns the expected reinforcement at the specified state-action pair.
+	 * 
+	 * @param mdp a finite-state MDP
+	 * @param state
+	 *            a state
+	 * @param action
+	 *            an action
+	 * @return the expected reinforcement for (state, action)
+	 */
+	public static <S, A> double avgR(FiniteStateMDP<S, A> mdp, S state, A action) {
+		double ravg = 0;
+		Iterable<S> nextStates = mdp.successors(state, action);
+		for (S nextState : nextStates) {
+			double tprob = mdp.tprob(state, action, nextState);
+			double r = mdp.r(state, action, nextState);
+			ravg += tprob * r;
+		}
+		return ravg;
+	}
+
+	/**
+	 * Returns the expected value associated with the state immediately
+	 * transitioned to from (state, action).
+	 * 
+	 * @param mdp a finite-state MDP
+	 * @param state a state
+	 * @param action an action
+	 * @param vfunc an estimate of the value function
+	 * @return the expected value of the next state
+	 */
+	public static <S, A> double avgNextV(FiniteStateMDP<S, A> mdp, S state,
+			A action, DiscountedVFunction<S> vfunc) {
+		double avgV = 0;
+		Iterable<S> nextStates = mdp.successors(state, action);
+		for (S nextState : nextStates) {
+			double tprob = mdp.tprob(state, action, nextState);
+			double v = vfunc.value(nextState);
+			avgV += tprob * v;
+		}
+		return avgV;
+	}
 }
