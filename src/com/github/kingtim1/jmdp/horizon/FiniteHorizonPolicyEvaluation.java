@@ -30,6 +30,7 @@ package com.github.kingtim1.jmdp.horizon;
 import com.github.kingtim1.jmdp.DP;
 import com.github.kingtim1.jmdp.FiniteStateMDP;
 import com.github.kingtim1.jmdp.VFunction;
+import com.github.kingtim1.jmdp.discounted.DiscountFactor;
 
 /**
  * An implementation of policy evaluation for policies with a finite-horizon.
@@ -45,11 +46,17 @@ public class FiniteHorizonPolicyEvaluation<S, A> implements DP<VFunction<S>> {
 
 	private FiniteStateMDP<S, A> _mdp;
 	private FiniteHorizonPolicy<S, A> _policy;
+	private DiscountFactor _df;
 
+	public FiniteHorizonPolicyEvaluation(FiniteStateMDP<S,A> mdp, FiniteHorizonPolicy<S,A> policy){
+		this(mdp, policy, new DiscountFactor(1));
+	}
+	
 	public FiniteHorizonPolicyEvaluation(FiniteStateMDP<S, A> mdp,
-			FiniteHorizonPolicy<S, A> policy) {
+			FiniteHorizonPolicy<S, A> policy, DiscountFactor df) {
 		_mdp = mdp;
 		_policy = policy;
+		_df = df;
 	}
 
 	@Override
@@ -57,6 +64,8 @@ public class FiniteHorizonPolicyEvaluation<S, A> implements DP<VFunction<S>> {
 		int horizon = _policy.horizon();
 		MapVFunction<S> vfunc = new MapVFunction<S>(horizon, 0);
 
+		double gamma = _df.doubleValue();
+		
 		for (int h = horizon - 1; h >= 0; h--) {
 
 			Iterable<S> states = _mdp.states();
@@ -66,7 +75,7 @@ public class FiniteHorizonPolicyEvaluation<S, A> implements DP<VFunction<S>> {
 				if (h == horizon - 1) {
 					v = rPi(state, h);
 				}else{
-					v = rPi(state, h) + avgNextV(state, h, vfunc);
+					v = rPi(state, h) + gamma * avgNextV(state, h, vfunc);
 				}
 				vfunc.set(state, h, v);
 			}
