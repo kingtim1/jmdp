@@ -130,4 +130,27 @@ public abstract class FiniteStateMDP<S, A> implements MDP<S, A> {
 		}
 		return avgV;
 	}
+	
+	/**
+	 * Returns the expected value associated with the state immediately
+	 * transitioned to from (state, action, timestep).
+	 * 
+	 * @param mdp a finite-state MDP
+	 * @param state a state
+	 * @param action an action
+	 * @param timestep the current timestep
+	 * @param vfunc an estimate of the value function
+	 * @return the expected value of the next state
+	 */
+	public static <S, A> double avgNextV(FiniteStateMDP<S, A> mdp, S state,
+			A action, Integer timestep, VFunction<S> vfunc) {
+		double avgV = 0;
+		Iterable<S> nextStates = mdp.successors(state, action);
+		for (S nextState : nextStates) {
+			double tprob = mdp.tprob(state, action, nextState);
+			double v = vfunc.value(nextState, timestep + 1);
+			avgV += tprob * v;
+		}
+		return avgV;
+	}
 }
