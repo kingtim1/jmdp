@@ -45,6 +45,13 @@ import com.github.kingtim1.jmdp.util.Optimization;
  *            the action type
  */
 public abstract class AbstractMDP<S, A> implements MDP<S, A> {
+	
+	private Optimization _opType;
+	
+	public AbstractMDP(Optimization opType)
+	{
+		_opType = opType;
+	}
 
 	@Override
 	public double r(S state, A action, S terminalState, Integer duration) {
@@ -77,15 +84,22 @@ public abstract class AbstractMDP<S, A> implements MDP<S, A> {
 	}
 
 	@Override
-	public int maxActionDuration() {
+	public final int maxActionDuration() {
 		return 1;
 	}
 
 	@Override
-	public Iterable<Integer> durations(S state, A action, S terminalState) {
+	public final Iterable<Integer> durations(S state, A action, S terminalState) {
 		List<Integer> durs = new ArrayList<Integer>(1);
 		durs.add(new Integer(1));
 		return durs;
 	}
+
+	@Override
+	public final Optimization opType() {
+		return _opType;
+	}
+	
+	
 
 }
