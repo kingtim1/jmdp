@@ -44,13 +44,11 @@ import com.github.kingtim1.jmdp.util.Optimization;
  * @param <A>
  *            the action type
  */
-public abstract class AbstractMDP<S, A> implements MDP<S, A> {
-	
-	private Optimization _opType;
+public abstract class AbstractMDP<S, A> extends AbstractSMDP<S,A> implements MDP<S, A> {
 	
 	public AbstractMDP(Optimization opType)
 	{
-		_opType = opType;
+		super(opType);
 	}
 
 	@Override
@@ -94,12 +92,5 @@ public abstract class AbstractMDP<S, A> implements MDP<S, A> {
 		durs.add(new Integer(1));
 		return durs;
 	}
-
-	@Override
-	public final Optimization opType() {
-		return _opType;
-	}
 	
-	
-
 }

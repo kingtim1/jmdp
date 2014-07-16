@@ -27,9 +27,12 @@
 
 package com.github.kingtim1.jmdp;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.github.kingtim1.jmdp.discounted.DiscountFactor;
 import com.github.kingtim1.jmdp.discounted.DiscountedVFunction;
+import com.github.kingtim1.jmdp.util.Optimization;
 
 /**
  * Represents a finite-state, finite-action MDP.
@@ -41,52 +44,53 @@ import com.github.kingtim1.jmdp.discounted.DiscountedVFunction;
  * @param <A>
  *            the action type
  */
-public abstract class FiniteStateMDP<S, A> implements MDP<S, A> {
+public abstract class FiniteStateMDP<S, A> extends FiniteStateSMDP<S,A> implements MDP<S, A> {
 
-	/**
-	 * Returns an iterable instance over all the states in this MDP.
-	 * 
-	 * @return an iterable instance over all states
-	 */
-	public abstract Iterable<S> states();
+	public FiniteStateMDP(Optimization opType) {
+		super(opType);
+	}
+	
+	@Override
+	public double r(S state, A action, S terminalState, Integer duration) {
+		if (duration != 1) {
+			return 0;
+		} else {
+			return r(state, action, terminalState);
+		}
+	}
 
-	/**
-	 * Returns a collection of all the valid actions at a specified state.
-	 * 
-	 * @param state
-	 *            a state
-	 * @return the collection of valid actions
-	 */
-	public abstract Collection<A> actions(S state);
+	@Override
+	public double dr(S state, A action, S terminalState, Integer duration,
+			DiscountFactor gamma) {
+		return r(state, action, terminalState, duration);
+	}
 
-	/**
-	 * The number of states in this MDP.
-	 * 
-	 * @return the total number of states
-	 */
-	public abstract int numberOfStates();
+	@Override
+	public double tprob(S state, A action, S terminalState, Integer duration) {
+		if (duration != 1) {
+			return 0;
+		} else {
+			return tprob(state, action, terminalState);
+		}
+	}
 
-	/**
-	 * The number of different actions in this MDP. However, there may be fewer
-	 * valid actions at each state than the number returned by this method.
-	 * 
-	 * @return the total number of actions
-	 */
-	public abstract int numberOfActions();
+	@Override
+	public double dtprob(S state, A action, S terminalState, Integer duration,
+			DiscountFactor gamma) {
+		return tprob(state, action, terminalState, duration);
+	}
 
-	/**
-	 * Returns an iterable instance over all successor states. This method
-	 * allows an MDP to specify a subset of successor states. When the successor
-	 * states are unknown this method can simply return an iterable instance
-	 * over all states.
-	 * 
-	 * @param state
-	 *            a state
-	 * @param action
-	 *            an action
-	 * @return an iterable instance over next states
-	 */
-	public abstract Iterable<S> successors(S state, A action);
+	@Override
+	public final int maxActionDuration() {
+		return 1;
+	}
+
+	@Override
+	public final Iterable<Integer> durations(S state, A action, S terminalState) {
+		List<Integer> durs = new ArrayList<Integer>(1);
+		durs.add(new Integer(1));
+		return durs;
+	}
 
 	/**
 	 * Returns the expected reinforcement at the specified state-action pair.
