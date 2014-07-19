@@ -69,13 +69,14 @@ public interface QFunction<S, A> {
 
 	/**
 	 * Returns one of the actions that optimize the action-value for the
-	 * specified state and timestep.
+	 * specified state and timestep. In the case of large or infinite action
+	 * spaces this method may return an approximately greedy action.
 	 * 
 	 * @param state
 	 *            a state
 	 * @param timestep
 	 *            a non-negative value representing the timestep
-	 * @return an action that optimizes the action-value function given a state
+	 * @return an action that (approximately) optimizes the action-value function given a state
 	 *         and timestep
 	 */
 	public A greedyAction(S state, Integer timestep);

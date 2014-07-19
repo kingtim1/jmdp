@@ -31,6 +31,8 @@ import java.util.List;
 
 /**
  * Represents a set of finite set of actions and their initiation constraints.
+ * This is useful for modeling problems where some actions can only be initiated
+ * in a subset of the state-space.
  * 
  * @author Timothy A. Mann
  * 
