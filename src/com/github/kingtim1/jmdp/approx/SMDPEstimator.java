@@ -43,7 +43,9 @@ import com.github.kingtim1.jmdp.util.MapUtil;
 import com.github.kingtim1.jmdp.util.Optimization;
 
 /**
- * Estimates the transition dynamics and rewards of an SMDP from samples.
+ * Estimates the transition dynamics and rewards of an (finite-state and
+ * finite-action) SMDP from samples. This estimator uses maximum likelihood
+ * estimates of the transition probabilities and expected reinforcements.
  * 
  * @author Timothy A. Mann
  *
@@ -75,9 +77,31 @@ public class SMDPEstimator<S, A> extends FiniteStateSMDP<S, A> implements
 	private int _m;
 	private boolean _optimistic;
 
+	/**
+	 * Constructs an SMDP estimator.
+	 * 
+	 * @param dummyState
+	 *            the dummy state should be a symbol that does not represent any
+	 *            real state in the SMDP. When a state-action pair is "unknown"
+	 *            it is assumed that they transition with probability 1 to the
+	 *            dummy state.
+	 * @param actionSet
+	 *            an action set
+	 * @param numSamplesBeforeKnown
+	 *            the number of samples needed at a state-action pair before it
+	 *            is considered "known"
+	 * @param optimistic
+	 *            true if this estimator will be optimistic about "unknown"
+	 *            state-action pairs; false if it will be pessimistic about them
+	 * @param immediateRInterval
+	 *            an interval containing the smallest and largest possible
+	 *            reinforcements that can be received in a single timestep
+	 * @param opType
+	 *            the optimization type (MINIMIZE or MAXIMIZE)
+	 */
 	public SMDPEstimator(S dummyState, ActionSet<S, A> actionSet,
 			int numSamplesBeforeKnown, boolean optimistic,
-			Interval immediateRewardInterval, Optimization opType) {
+			Interval immediateRInterval, Optimization opType) {
 		super(opType);
 		if (dummyState == null) {
 			throw new NullPointerException("Dummy state cannot be null.");
@@ -88,7 +112,7 @@ public class SMDPEstimator<S, A> extends FiniteStateSMDP<S, A> implements
 		}
 		_actionSet = actionSet;
 
-		_rInterval = immediateRewardInterval;
+		_rInterval = immediateRInterval;
 
 		if (numSamplesBeforeKnown < 1) {
 			throw new IllegalArgumentException(
@@ -179,9 +203,17 @@ public class SMDPEstimator<S, A> extends FiniteStateSMDP<S, A> implements
 	 */
 	public double unknownR(S state, A action, S terminalState, Integer duration) {
 		if (isOptimistic()) {
-			return rmax();
+			if (opType().equals(Optimization.MAXIMIZE)) {
+				return rmax();
+			} else {
+				return rmin();
+			}
 		} else {
-			return rmin();
+			if (opType().equals(Optimization.MAXIMIZE)) {
+				return rmin();
+			} else {
+				return rmax();
+			}
 		}
 	}
 
