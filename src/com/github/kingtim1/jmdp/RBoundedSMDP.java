@@ -1,5 +1,5 @@
 /**
-	RBoundedMDP.java
+	RBoundedSMDP.java
 
 	===================================================================
 
@@ -28,22 +28,22 @@
 package com.github.kingtim1.jmdp;
 
 /**
- * Represents an MDP with bounded immediate reinforcements.
+ * Represents an SMDP with bounded immediate (1 timestep) reinforcements.
  * @author Timothy A. Mann
  *
  * @param <S> the state type
- * @param <A> the primitive action type
+ * @param <A> the action type
  */
-public interface RBoundedMDP<S,A> extends MDP<S,A> {
+public interface RBoundedSMDP<S,A> extends SMDP<S,A> {
 	
 	/**
-	 * Returns the maximum possible immediate reinforcement for this MDP.
+	 * Returns the maximum possible immediate reinforcement for this SMDP.
 	 * @return maximum possible immediate reinforcement
 	 */
 	public double rmax();
 	
 	/**
-	 * Returns the minimum possible immediate reinforcement for this MDP.
+	 * Returns the minimum possible immediate reinforcement for this SMDP.
 	 * @return minimum possible immediate reinforcement
 	 */
 	public double rmin();

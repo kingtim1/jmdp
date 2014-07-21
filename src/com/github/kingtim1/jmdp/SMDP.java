@@ -42,7 +42,7 @@ import com.github.kingtim1.jmdp.util.Optimization;
  */
 public interface SMDP<S, A> {
 	/**
-	 * Returns the expected <b>undiscounted</b> reinforcement (reward/cost)
+	 * Returns the expected <b>discounted</b> reinforcement (reward/cost)
 	 * associated with the observation (state, action, terminalState, duration).
 	 * 
 	 * @param state
@@ -58,25 +58,6 @@ public interface SMDP<S, A> {
 	 * @return the expected reinforcement
 	 */
 	public double r(S state, A action, S terminalState, Integer duration);
-
-	/**
-	 * Returns the expected <b>discounted</b> reinforcement (reward/cost)
-	 * associated with the observation (state, action, terminalState, duration).
-	 * 
-	 * @param state
-	 *            the state before executing an action
-	 * @param action
-	 *            the action that was executed
-	 * @param terminalState
-	 *            the resulting state where the action returned control back to
-	 *            the agent
-	 * @param duration
-	 *            the number of timesteps before the action returns control to
-	 *            the agent
-	 * @param gamma the discount factor used to compute the discounted reinforcement
-	 * @return the expected reinforcement
-	 */
-	public double dr(S state, A action, S terminalState, Integer duration, DiscountFactor gamma);
 
 	/**
 	 * Returns the <b>undiscounted</b> transition probability associated with

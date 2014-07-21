@@ -60,12 +60,6 @@ public abstract class FiniteStateMDP<S, A> extends FiniteStateSMDP<S,A> implemen
 	}
 
 	@Override
-	public double dr(S state, A action, S terminalState, Integer duration,
-			DiscountFactor gamma) {
-		return r(state, action, terminalState, duration);
-	}
-
-	@Override
 	public double tprob(S state, A action, S terminalState, Integer duration) {
 		if (duration != 1) {
 			return 0;
