@@ -53,75 +53,42 @@ import com.github.kingtim1.jmdp.StationaryPolicy;
  * @param <A>
  *            the action type
  */
-public class PolicyEvaluation<S, A> implements DP<DiscountedVFunction<S>> {
+public class MatrixInversePolicyEvaluation<S, A> implements com.github.kingtim1.jmdp.PolicyEvaluation<S,A,StationaryPolicy<S,A>, DiscountedVFunction<S>> {
 
 	private FiniteStateMDP<S, A> _mdp;
 	private DiscountFactor _df;
-	private StationaryPolicy<S, A> _policy;
 
-	public PolicyEvaluation(FiniteStateMDP<S, A> mdp, DiscountFactor df,
-			StationaryPolicy<S, A> policy) {
+	public MatrixInversePolicyEvaluation(FiniteStateMDP<S, A> mdp, DiscountFactor df) {
 		_mdp = mdp;
 		_df = df;
-		_policy = policy;
 	}
 
-	@Override
-	public DiscountedVFunction<S> run() {
-		int n = _mdp.numberOfStates();
-		List<S> states = new ArrayList<S>(n);
-		Iterable<S> istates = _mdp.states();
-		for (S state : istates) {
-			states.add(state);
-		}
-
-		// Construct matrix A and vector b
-		RealMatrix id = MatrixUtils.createRealIdentityMatrix(n);
-		RealMatrix gpp = gammaPPi(states);
-		RealMatrix A = id.subtract(gpp);
-		RealVector b = rPi(states);
-
-		// Solve for V^{\pi}
-		RealMatrix Ainv = MatrixUtils.inverse(A);
-		RealVector vpi = Ainv.operate(b);
-
-		// Construct the value function
-		Map<S, Double> valueMap = new HashMap<S, Double>();
-		for (int i = 0; i < states.size(); i++) {
-			S state = states.get(i);
-			double val = vpi.getEntry(i);
-			valueMap.put(state, val);
-		}
-
-		return new MapVFunction<S>(valueMap, 0);
-	}
-
-	private RealMatrix gammaPPi(List<S> states) {
+	private RealMatrix gammaPPi(StationaryPolicy<S,A> policy, List<S> states) {
 		int n = _mdp.numberOfStates();
 		double[][] gpp = new double[n][n];
 
 		// Fill the matrix
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < n; j++) {
-				gpp[i][j] = gammaPPi(states, i, j);
+				gpp[i][j] = gammaPPi(policy, states, i, j);
 			}
 		}
 
 		return new Array2DRowRealMatrix(gpp);
 	}
 
-	private double gammaPPi(List<S> states, int statei, int statej) {
+	private double gammaPPi(StationaryPolicy<S,A> policy, List<S> states, int statei, int statej) {
 		S state = states.get(statei);
 		S nextState = states.get(statej);
 
-		if (_policy.isDeterministic()) {
-			A action = _policy.policy(state);
+		if (policy.isDeterministic()) {
+			A action = policy.policy(state);
 			return _df.doubleValue() * _mdp.tprob(state, action, nextState);
 		} else {
 			double vavg = 0;
 			Iterable<A> actions = _mdp.actions(state);
 			for (A action : actions) {
-				vavg += _policy.aprob(state, action)
+				vavg += policy.aprob(state, action)
 						* _mdp.tprob(state, action, nextState);
 			}
 			return _df.doubleValue() * vavg;
@@ -138,13 +105,13 @@ public class PolicyEvaluation<S, A> implements DP<DiscountedVFunction<S>> {
 	 * @return a vector containing the immediate expected reinforcement at each
 	 *         state
 	 */
-	private RealVector rPi(List<S> states) {
+	private RealVector rPi(StationaryPolicy<S,A> policy, List<S> states) {
 		int n = _mdp.numberOfStates();
 		double[] rp = new double[n];
 
 		// Fill the vector
 		for (int i = 0; i < n; i++) {
-			rp[i] = rPi(states, i);
+			rp[i] = rPi(policy, states, i);
 		}
 
 		return new ArrayRealVector(rp);
@@ -161,20 +128,50 @@ public class PolicyEvaluation<S, A> implements DP<DiscountedVFunction<S>> {
 	 *            the expected reward for)
 	 * @return the expected reward of the state index by statei
 	 */
-	private double rPi(List<S> states, int statei) {
+	private double rPi(StationaryPolicy<S,A> policy, List<S> states, int statei) {
 		S state = states.get(statei);
-		if (_policy.isDeterministic()) {
-			A action = _policy.policy(state);
+		if (policy.isDeterministic()) {
+			A action = policy.policy(state);
 			return FiniteStateMDP.avgR(_mdp, state, action);
 		} else {
 			Iterable<A> actions = _mdp.actions(state);
 			double ravg = 0;
 			for (A action : actions) {
-				double aprob = _policy.aprob(state, action);
+				double aprob = policy.aprob(state, action);
 				ravg += aprob * FiniteStateMDP.avgR(_mdp, state, action);
 			}
 			return ravg;
 		}
+	}
+
+	@Override
+	public DiscountedVFunction<S> eval(StationaryPolicy<S, A> policy) {
+		int n = _mdp.numberOfStates();
+		List<S> states = new ArrayList<S>(n);
+		Iterable<S> istates = _mdp.states();
+		for (S state : istates) {
+			states.add(state);
+		}
+
+		// Construct matrix A and vector b
+		RealMatrix id = MatrixUtils.createRealIdentityMatrix(n);
+		RealMatrix gpp = gammaPPi(policy, states);
+		RealMatrix A = id.subtract(gpp);
+		RealVector b = rPi(policy, states);
+
+		// Solve for V^{\pi}
+		RealMatrix Ainv = MatrixUtils.inverse(A);
+		RealVector vpi = Ainv.operate(b);
+
+		// Construct the value function
+		Map<S, Double> valueMap = new HashMap<S, Double>();
+		for (int i = 0; i < states.size(); i++) {
+			S state = states.get(i);
+			double val = vpi.getEntry(i);
+			valueMap.put(state, val);
+		}
+
+		return new MapVFunction<S>(valueMap, 0);
 	}
 
 }
