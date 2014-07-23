@@ -100,7 +100,7 @@ public class MapQFunction<S, A> implements DiscountedQFunction<S, A> {
 		Map<A,Double> avals = MapUtil.get2ndMap(_qvals, state);
 		Map.Entry<A, Double> pair = MapUtil.optimalKeyValueSearch(avals, _opType);
 		if(pair == null){
-			return _actionSet.uniformRandom(state);
+			return _actionSet.actions(state).get(0);
 		}else{
 			return pair.getKey();
 		}
@@ -120,6 +120,26 @@ public class MapQFunction<S, A> implements DiscountedQFunction<S, A> {
 	public void set(S state, A action, double value){
 		Map<A,Double> avals = MapUtil.get2ndMap(_qvals, state);
 		avals.put(action, value);
+	}
+
+	@Override
+	public A policy(S state) {
+		return greedyAction(state);
+	}
+
+	@Override
+	public double aprob(S state, A action) {
+		return policy(state).equals(action)? 1 : 0;
+	}
+
+	@Override
+	public boolean isDeterministic() {
+		return true;
+	}
+
+	@Override
+	public A policy(S state, Integer timestep) {
+		return policy(state);
 	}
 
 }

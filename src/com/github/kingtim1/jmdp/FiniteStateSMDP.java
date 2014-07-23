@@ -45,8 +45,14 @@ import com.github.kingtim1.jmdp.util.Optimization;
  */
 public abstract class FiniteStateSMDP<S, A> extends AbstractSMDP<S, A> {
 
-	public FiniteStateSMDP(Optimization opType) {
+	private ActionSet<S,A> _actionSet;
+	
+	public FiniteStateSMDP(ActionSet<S,A> actionSet, Optimization opType) {
 		super(opType);
+		if (actionSet == null) {
+			throw new NullPointerException("Action set cannot be null.");
+		}
+		_actionSet = actionSet;
 	}
 
 	/**
@@ -63,7 +69,19 @@ public abstract class FiniteStateSMDP<S, A> extends AbstractSMDP<S, A> {
 	 *            a state
 	 * @return the collection of valid actions
 	 */
-	public abstract Collection<A> actions(S state);
+	public final Collection<A> actions(S state)
+	{
+		return _actionSet.actions(state);
+	}
+	
+	/**
+	 * Returns the action set for this SMDP.
+	 * @return an action set
+	 */
+	public final ActionSet<S,A> actionSet()
+	{
+		return _actionSet;
+	}
 
 	/**
 	 * The number of states in this SMDP.
@@ -78,7 +96,9 @@ public abstract class FiniteStateSMDP<S, A> extends AbstractSMDP<S, A> {
 	 * 
 	 * @return the total number of actions
 	 */
-	public abstract int numberOfActions();
+	public final int numberOfActions(){
+		return _actionSet.numberOfActions();
+	}
 
 	/**
 	 * Returns an iterable instance over all successor terminal states. A

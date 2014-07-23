@@ -27,7 +27,6 @@
 
 package com.github.kingtim1.jmdp.approx;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -71,7 +70,6 @@ public class SMDPEstimator<S, A> extends FiniteStateSMDP<S, A> implements
 
 	private S _dummyState;
 	private int _maxDuration;
-	private ActionSet<S, A> _actionSet;
 	private Interval _rInterval;
 
 	private int _m;
@@ -102,16 +100,11 @@ public class SMDPEstimator<S, A> extends FiniteStateSMDP<S, A> implements
 	public SMDPEstimator(S dummyState, ActionSet<S, A> actionSet,
 			int numSamplesBeforeKnown, boolean optimistic,
 			Interval immediateRInterval, Optimization opType) {
-		super(opType);
+		super(actionSet, opType);
 		if (dummyState == null) {
 			throw new NullPointerException("Dummy state cannot be null.");
 		}
 		_dummyState = dummyState;
-		if (actionSet == null) {
-			throw new NullPointerException("Action set cannot be null.");
-		}
-		_actionSet = actionSet;
-
 		_rInterval = immediateRInterval;
 
 		if (numSamplesBeforeKnown < 1) {
@@ -288,18 +281,8 @@ public class SMDPEstimator<S, A> extends FiniteStateSMDP<S, A> implements
 	}
 
 	@Override
-	public Collection<A> actions(S state) {
-		return _actionSet.actions(state);
-	}
-
-	@Override
 	public int numberOfStates() {
 		return _states.size();
-	}
-
-	@Override
-	public int numberOfActions() {
-		return _actionSet.numberOfActions();
 	}
 
 	@Override

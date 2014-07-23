@@ -147,7 +147,7 @@ public abstract class AbstractPolicyIteration<S, A, P extends Policy<S, A>, V>
 	 * 
 	 * @return the policy evaluation algorithm
 	 */
-	public PolicyEvaluation<S, A, P, V> policyEvaluation() {
+	public PolicyEvaluation<S, A, ? extends P, ? extends V> policyEvaluation() {
 		return _pe;
 	}
 
@@ -156,7 +156,7 @@ public abstract class AbstractPolicyIteration<S, A, P extends Policy<S, A>, V>
 	 * 
 	 * @return the policy improvement algorithm
 	 */
-	public PolicyImprovement<S, A, P, V> policyImprovement() {
+	public PolicyImprovement<S, A, ? extends P, ? extends V> policyImprovement() {
 		return _pi;
 	}
 

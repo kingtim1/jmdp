@@ -1,5 +1,5 @@
 /**
-	DiscountedQFunction.java
+	MapPolicy.java
 
 	===================================================================
 
@@ -27,30 +27,40 @@
 
 package com.github.kingtim1.jmdp.discounted;
 
-import com.github.kingtim1.jmdp.QFunction;
-import com.github.kingtim1.jmdp.StationaryPolicy;
+import java.util.Map;
+
+import com.github.kingtim1.jmdp.DeterministicPolicy;
 
 /**
- * Represents an action-value function for a discounted-reinforcement MDP. This
- * class also implements the {@link StationaryPolicy} interface so that it can
- * be used to control an agent. The stationary policy implemented by this class
- * selects the greedy action with respect to the action-values at a state.
- * 
+ * A policy implemented by a {@link Map} data structure.
  * @author Timothy A. Mann
  *
- * @param <S>
- *            the state type
- * @param <A>
- *            the action type
+ * @param <S> the state type
+ * @param <A> the action type
  */
-public interface DiscountedQFunction<S, A> extends QFunction<S, A>,
-		StationaryPolicy<S, A> {
+public class MapPolicy<S, A> extends DeterministicPolicy<S,A> {
 
-	public double value(S state, A action);
+	private Map<S,A> _policy;
+	
+	public MapPolicy(Map<S,A> policy){
+		if(policy == null){
+			throw new NullPointerException("Cannot construct policy from a null map.");
+		}
+		_policy = policy;
+	}
 
-	public double greedyValue(S state);
+	@Override
+	public A policy(S state) {
+		return _policy.get(state);
+	}
+	
+	/**
+	 * Sets this policy's action at a specified state.
+	 * @param state a state
+	 * @param action an action
+	 */
+	public void set(S state, A action){
+		_policy.put(state, action);
+	}
 
-	public A greedyAction(S state);
-
-	public DiscountedVFunction<S> greedy();
 }

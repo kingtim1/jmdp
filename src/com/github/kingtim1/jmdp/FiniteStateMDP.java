@@ -46,8 +46,8 @@ import com.github.kingtim1.jmdp.util.Optimization;
  */
 public abstract class FiniteStateMDP<S, A> extends FiniteStateSMDP<S,A> implements MDP<S, A> {
 
-	public FiniteStateMDP(Optimization opType) {
-		super(opType);
+	public FiniteStateMDP(ActionSet<S,A> actionSet, Optimization opType) {
+		super(actionSet, opType);
 	}
 	
 	@Override
