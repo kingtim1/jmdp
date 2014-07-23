@@ -75,6 +75,13 @@ public interface ActionSet<S, A> {
 	 * @return the list of valid actions
 	 */
 	public List<A> actions(S state);
+	
+	/**
+	 * Samples a valid action according to the uniform distribution.
+	 * @param state a state
+	 * @return a uniformly sampled valid action
+	 */
+	public A uniformRandom(S state);
 
 	/**
 	 * Returns the action symbol specified by an <code>index</code>.

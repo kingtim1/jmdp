@@ -1,5 +1,6 @@
 package com.github.kingtim1.jmdp.util;
 
+import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,18 +24,43 @@ public class MapUtil {
 	 *            ignored)
 	 * @param opType
 	 *            the optimization type (MINIMIZE or MAXIMIZE)
-	 * @return the optimal value
+	 * @return the optimal value (or null if the map is empty)
 	 */
-	public static <T> Double linearSearch(Map<T, ? extends Number> map,
+	public static <K, V extends Number> V optimalValueSearch(Map<K, V> map,
 			Optimization opType) {
-		Double opt = null;
-		for (T key : map.keySet()) {
-			Double val = map.get(key).doubleValue();
-			if (opt == null || opType.firstIsBetter(val, opt)) {
+		Map.Entry<K, V> entry = optimalKeyValueSearch(map, opType);
+		if(entry == null){return null;}else{
+			return entry.getValue();
+		}
+	}
+
+	/**
+	 * Performs a linear search over the values of a map returning the optimal
+	 * key-value pair, where optimal is determined by the value and the
+	 * optimization type.
+	 * 
+	 * @param map a map from arbitrary keys to numerical values
+	 * @param opType the optimization type (MINIMIZE or MAXIMIZE)
+	 * @return the optimal key-value pair (or null if the map is empty)
+	 */
+	public static <K, V extends Number> Map.Entry<K, V> optimalKeyValueSearch(
+			Map<K, V> map, Optimization opType) {
+		V opt = null;
+		K optKey = null;
+		for (K key : map.keySet()) {
+			V val = map.get(key);
+			if (opt == null
+					|| opType.firstIsBetter(val.doubleValue(),
+							opt.doubleValue())) {
 				opt = val;
+				optKey = key;
 			}
 		}
-		return opt;
+		if(optKey == null || opt == null){
+			return null;
+		}else{
+			return new AbstractMap.SimpleEntry<K, V>(optKey, opt);
+		}
 	}
 
 	/**
