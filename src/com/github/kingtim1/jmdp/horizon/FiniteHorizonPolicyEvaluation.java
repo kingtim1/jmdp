@@ -27,8 +27,8 @@
 
 package com.github.kingtim1.jmdp.horizon;
 
-import com.github.kingtim1.jmdp.DP;
-import com.github.kingtim1.jmdp.FiniteStateMDP;
+import com.github.kingtim1.jmdp.FiniteStateSMDP;
+import com.github.kingtim1.jmdp.PolicyEvaluation;
 import com.github.kingtim1.jmdp.VFunction;
 import com.github.kingtim1.jmdp.discounted.DiscountFactor;
 
@@ -42,56 +42,51 @@ import com.github.kingtim1.jmdp.discounted.DiscountFactor;
  * @param <A>
  *            the action type
  */
-public class FiniteHorizonPolicyEvaluation<S, A> implements DP<VFunction<S>> {
+public class FiniteHorizonPolicyEvaluation<S, A> implements PolicyEvaluation<S,A,FiniteHorizonPolicy<S,A>, VFunction<S>> {
 
-	private FiniteStateMDP<S, A> _mdp;
-	private FiniteHorizonPolicy<S, A> _policy;
+	private FiniteStateSMDP<S, A> _smdp;
 	private DiscountFactor _df;
 
-	public FiniteHorizonPolicyEvaluation(FiniteStateMDP<S,A> mdp, FiniteHorizonPolicy<S,A> policy){
-		this(mdp, policy, new DiscountFactor(1));
+	public FiniteHorizonPolicyEvaluation(FiniteStateSMDP<S,A> smdp){
+		this(smdp, new DiscountFactor(1));
 	}
 	
-	public FiniteHorizonPolicyEvaluation(FiniteStateMDP<S, A> mdp,
-			FiniteHorizonPolicy<S, A> policy, DiscountFactor df) {
-		_mdp = mdp;
-		_policy = policy;
+	public FiniteHorizonPolicyEvaluation(FiniteStateSMDP<S, A> smdp, DiscountFactor df) {
+		_smdp = smdp;
 		_df = df;
 	}
 
-	@Override
-	public VFunction<S> run() {
-		int horizon = _policy.horizon();
-		MapVFunction<S> vfunc = new MapVFunction<S>(horizon, 0);
+	private double rPi(FiniteHorizonPolicy<S,A> policy, S state, Integer timestep) {
+		A action = policy.policy(state, timestep);
+		return FiniteStateSMDP.avgR(_smdp, state, action);
+	}
+	
+	private double avgNextV(FiniteHorizonPolicy<S,A> policy, S state, Integer timestep, VFunction<S> vfunc){
+		A action = policy.policy(state, timestep);
+		return FiniteStateSMDP.avgNextV(_smdp, state, action, timestep, vfunc, _df);
+	}
 
-		double gamma = _df.doubleValue();
+	@Override
+	public VFunction<S> eval(FiniteHorizonPolicy<S, A> policy) {
+		int horizon = policy.horizon();
+		MapVFunction<S> vfunc = new MapVFunction<S>(horizon, 0);
 		
 		for (int h = horizon - 1; h >= 0; h--) {
 
-			Iterable<S> states = _mdp.states();
+			Iterable<S> states = _smdp.states();
 
 			for (S state : states) {
 				double v = 0;
 				if (h == horizon - 1) {
-					v = rPi(state, h);
+					v = rPi(policy, state, h);
 				}else{
-					v = rPi(state, h) + gamma * avgNextV(state, h, vfunc);
+					v = rPi(policy, state, h) + avgNextV(policy, state, h, vfunc);
 				}
 				vfunc.set(state, h, v);
 			}
 		}
 
 		return vfunc;
-	}
-
-	private double rPi(S state, Integer timestep) {
-		A action = _policy.policy(state, timestep);
-		return FiniteStateMDP.avgR(_mdp, state, action);
-	}
-	
-	private double avgNextV(S state, Integer timestep, VFunction<S> vfunc){
-		A action = _policy.policy(state, timestep);
-		return FiniteStateMDP.avgNextV(_mdp, state, action, timestep, vfunc);
 	}
 
 }

@@ -38,8 +38,7 @@ import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 
-import com.github.kingtim1.jmdp.DP;
-import com.github.kingtim1.jmdp.FiniteStateMDP;
+import com.github.kingtim1.jmdp.FiniteStateSMDP;
 import com.github.kingtim1.jmdp.StationaryPolicy;
 
 /**
@@ -55,16 +54,16 @@ import com.github.kingtim1.jmdp.StationaryPolicy;
  */
 public class MatrixInversePolicyEvaluation<S, A> implements com.github.kingtim1.jmdp.PolicyEvaluation<S,A,StationaryPolicy<S,A>, DiscountedVFunction<S>> {
 
-	private FiniteStateMDP<S, A> _mdp;
+	private FiniteStateSMDP<S, A> _smdp;
 	private DiscountFactor _df;
 
-	public MatrixInversePolicyEvaluation(FiniteStateMDP<S, A> mdp, DiscountFactor df) {
-		_mdp = mdp;
+	public MatrixInversePolicyEvaluation(FiniteStateSMDP<S, A> smdp, DiscountFactor df) {
+		_smdp = smdp;
 		_df = df;
 	}
 
 	private RealMatrix gammaPPi(StationaryPolicy<S,A> policy, List<S> states) {
-		int n = _mdp.numberOfStates();
+		int n = _smdp.numberOfStates();
 		double[][] gpp = new double[n][n];
 
 		// Fill the matrix
@@ -83,16 +82,25 @@ public class MatrixInversePolicyEvaluation<S, A> implements com.github.kingtim1.
 
 		if (policy.isDeterministic()) {
 			A action = policy.policy(state);
-			return _df.doubleValue() * _mdp.tprob(state, action, nextState);
+			return gammaPPi(state, action, nextState);
 		} else {
-			double vavg = 0;
-			Iterable<A> actions = _mdp.actions(state);
+			double pavg = 0;
+			Iterable<A> actions = _smdp.actions(state);
 			for (A action : actions) {
-				vavg += policy.aprob(state, action)
-						* _mdp.tprob(state, action, nextState);
+				pavg += policy.aprob(state, action)
+						* gammaPPi(state, action, nextState);
 			}
-			return _df.doubleValue() * vavg;
+			return pavg;
 		}
+	}
+	
+	private double gammaPPi(S state, A action, S terminalState){
+		double gprob = 0;
+		Iterable<Integer> durs = _smdp.durations(state, action, terminalState);
+		for(Integer dur : durs){
+			gprob += _smdp.dtprob(state, action, terminalState, dur, _df);
+		}
+		return gprob;
 	}
 
 	/**
@@ -106,7 +114,7 @@ public class MatrixInversePolicyEvaluation<S, A> implements com.github.kingtim1.
 	 *         state
 	 */
 	private RealVector rPi(StationaryPolicy<S,A> policy, List<S> states) {
-		int n = _mdp.numberOfStates();
+		int n = _smdp.numberOfStates();
 		double[] rp = new double[n];
 
 		// Fill the vector
@@ -132,13 +140,13 @@ public class MatrixInversePolicyEvaluation<S, A> implements com.github.kingtim1.
 		S state = states.get(statei);
 		if (policy.isDeterministic()) {
 			A action = policy.policy(state);
-			return FiniteStateMDP.avgR(_mdp, state, action);
+			return FiniteStateSMDP.avgR(_smdp, state, action);
 		} else {
-			Iterable<A> actions = _mdp.actions(state);
+			Iterable<A> actions = _smdp.actions(state);
 			double ravg = 0;
 			for (A action : actions) {
 				double aprob = policy.aprob(state, action);
-				ravg += aprob * FiniteStateMDP.avgR(_mdp, state, action);
+				ravg += aprob * FiniteStateSMDP.avgR(_smdp, state, action);
 			}
 			return ravg;
 		}
@@ -146,9 +154,9 @@ public class MatrixInversePolicyEvaluation<S, A> implements com.github.kingtim1.
 
 	@Override
 	public DiscountedVFunction<S> eval(StationaryPolicy<S, A> policy) {
-		int n = _mdp.numberOfStates();
+		int n = _smdp.numberOfStates();
 		List<S> states = new ArrayList<S>(n);
-		Iterable<S> istates = _mdp.states();
+		Iterable<S> istates = _smdp.states();
 		for (S state : istates) {
 			states.add(state);
 		}

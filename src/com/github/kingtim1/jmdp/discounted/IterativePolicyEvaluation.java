@@ -27,7 +27,7 @@
 
 package com.github.kingtim1.jmdp.discounted;
 
-import com.github.kingtim1.jmdp.FiniteStateMDP;
+import com.github.kingtim1.jmdp.FiniteStateSMDP;
 import com.github.kingtim1.jmdp.StationaryPolicy;
 
 /**
@@ -43,15 +43,15 @@ import com.github.kingtim1.jmdp.StationaryPolicy;
  */
 public class IterativePolicyEvaluation<S, A> implements com.github.kingtim1.jmdp.PolicyEvaluation<S,A,StationaryPolicy<S,A>, DiscountedVFunction<S>> {
 
-	private FiniteStateMDP<S, A> _mdp;
+	private FiniteStateSMDP<S, A> _smdp;
 	private DiscountFactor _df;
 	private int _maxIterations;
 	private double _theta;
 
-	public IterativePolicyEvaluation(FiniteStateMDP<S, A> mdp,
+	public IterativePolicyEvaluation(FiniteStateSMDP<S, A> smdp,
 			DiscountFactor df,
 			int maxIterations, double convergenceThreshold) {
-		_mdp = mdp;
+		_smdp = smdp;
 		_df = df;
 
 		_maxIterations = maxIterations;
@@ -59,7 +59,7 @@ public class IterativePolicyEvaluation<S, A> implements com.github.kingtim1.jmdp
 	}
 
 	/**
-	 * Performs a single Bellman backup according to the dynamics of the MDP and
+	 * Performs a single Bellman backup according to the dynamics of the SMDP and
 	 * stationary policy.
 	 * 
 	 * @param policy a stationary policy
@@ -70,19 +70,19 @@ public class IterativePolicyEvaluation<S, A> implements com.github.kingtim1.jmdp
 	 * @return the resulting Bellman backup
 	 */
 	private double backup(StationaryPolicy<S,A> policy, S state, DiscountedVFunction<S> vfunc) {
-		return rPi(policy, state) + _df.doubleValue() * avgNextV(policy, state, vfunc);
+		return rPi(policy, state) + avgNextV(policy, state, vfunc);
 	}
 
 	private double avgNextV(StationaryPolicy<S,A> policy, S state, DiscountedVFunction<S> vfunc) {
 		if (policy.isDeterministic()) {
 			A action = policy.policy(state);
-			return FiniteStateMDP.avgNextV(_mdp, state, action, vfunc);
+			return FiniteStateSMDP.avgNextV(_smdp, state, action, vfunc, _df);
 		} else {
 			double avgV = 0;
-			Iterable<A> actions = _mdp.actions(state);
+			Iterable<A> actions = _smdp.actions(state);
 			for (A action : actions) {
 				double aprob = policy.aprob(state, action);
-				avgV += aprob * FiniteStateMDP.avgNextV(_mdp, state, action, vfunc);
+				avgV += aprob * FiniteStateSMDP.avgNextV(_smdp, state, action, vfunc, _df);
 			}
 			return avgV;
 		}
@@ -100,13 +100,13 @@ public class IterativePolicyEvaluation<S, A> implements com.github.kingtim1.jmdp
 	private double rPi(StationaryPolicy<S,A> policy, S state) {
 		if (policy.isDeterministic()) {
 			A action = policy.policy(state);
-			return FiniteStateMDP.avgR(_mdp, state, action);
+			return FiniteStateSMDP.avgR(_smdp, state, action);
 		} else {
 			double ravg = 0;
-			Iterable<A> actions = _mdp.actions(state);
+			Iterable<A> actions = _smdp.actions(state);
 			for (A action : actions) {
 				double aprob = policy.aprob(state, action);
-				ravg += aprob * FiniteStateMDP.avgR(_mdp, state, action);
+				ravg += aprob * FiniteStateSMDP.avgR(_smdp, state, action);
 			}
 			return ravg;
 		}
@@ -118,7 +118,7 @@ public class IterativePolicyEvaluation<S, A> implements com.github.kingtim1.jmdp
 
 		for (int i = 0; i < _maxIterations; i++) {
 			double delta = 0;
-			Iterable<S> states = _mdp.states();
+			Iterable<S> states = _smdp.states();
 			for (S state : states) {
 				double oldV = vfunc.value(state);
 				double newV = backup(policy, state, vfunc);
