@@ -25,7 +25,9 @@
 
  */
 
-package com.github.kingtim1.jmdp;
+package com.github.kingtim1.jmdp.actions;
+
+import com.github.kingtim1.jmdp.StationaryPolicy;
 
 /**
  * The options framework provides a common interface for both primitive and

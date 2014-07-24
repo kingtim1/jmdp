@@ -1,5 +1,5 @@
 /**
-	PolicyEvaluation.java
+	MatrixInversePolicyEvaluation.java
 
 	===================================================================
 
@@ -31,19 +31,33 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
+import org.apache.commons.math3.linear.DecompositionSolver;
 import org.apache.commons.math3.linear.MatrixUtils;
+import org.apache.commons.math3.linear.QRDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
+import org.apache.commons.math3.linear.SingularValueDecomposition;
 
 import com.github.kingtim1.jmdp.FiniteStateSMDP;
+import com.github.kingtim1.jmdp.PolicyEvaluation;
 import com.github.kingtim1.jmdp.StationaryPolicy;
 
 /**
+ * <p>
  * Exact policy evaluation via matrix inversion. This algorithm will only work
- * for MDPs with a moderate number of states and actions.
+ * for SMDPs with a moderate number of states and actions.
+ * </p>
+ * 
+ * <p>
+ * The algorithm solves: $V^{\pi} = R^{\pi}(I - P^{\pi})^{-1}$ where $V^{\pi}$
+ * is the value function for policy $\pi$, $R^{\pi}$ is the expected, immediate
+ * reward for policy $\pi$, $I$ is the identity matrix, and $P^{\pi}$ is the discounted transition
+ * probability kernel with respect to $\pi$.
+ * </p>
  * 
  * @author Timothy A. Mann
  *
@@ -52,17 +66,27 @@ import com.github.kingtim1.jmdp.StationaryPolicy;
  * @param <A>
  *            the action type
  */
-public class MatrixInversePolicyEvaluation<S, A> implements com.github.kingtim1.jmdp.PolicyEvaluation<S,A,StationaryPolicy<S,A>, DiscountedVFunction<S>> {
+public class MatrixInversePolicyEvaluation<S, A> implements
+		PolicyEvaluation<S, A, StationaryPolicy<S, A>, DiscountedVFunction<S>> {
 
 	private FiniteStateSMDP<S, A> _smdp;
 	private DiscountFactor _df;
 
-	public MatrixInversePolicyEvaluation(FiniteStateSMDP<S, A> smdp, DiscountFactor df) {
+	/**
+	 * Constructs a policy evaluator given an SMDP and a discount factor.
+	 * 
+	 * @param smdp
+	 *            a finite state SMDP model
+	 * @param df
+	 *            a discount factor
+	 */
+	public MatrixInversePolicyEvaluation(FiniteStateSMDP<S, A> smdp,
+			DiscountFactor df) {
 		_smdp = smdp;
 		_df = df;
 	}
 
-	private RealMatrix gammaPPi(StationaryPolicy<S,A> policy, List<S> states) {
+	private RealMatrix gammaPPi(StationaryPolicy<S, A> policy, List<S> states) {
 		int n = _smdp.numberOfStates();
 		double[][] gpp = new double[n][n];
 
@@ -76,28 +100,29 @@ public class MatrixInversePolicyEvaluation<S, A> implements com.github.kingtim1.
 		return new Array2DRowRealMatrix(gpp);
 	}
 
-	private double gammaPPi(StationaryPolicy<S,A> policy, List<S> states, int statei, int statej) {
+	private double gammaPPi(StationaryPolicy<S, A> policy, List<S> states,
+			int statei, int statej) {
 		S state = states.get(statei);
-		S nextState = states.get(statej);
+		S tstate = states.get(statej);
 
 		if (policy.isDeterministic()) {
 			A action = policy.policy(state);
-			return gammaPPi(state, action, nextState);
+			return gammaPPi(state, action, tstate);
 		} else {
 			double pavg = 0;
 			Iterable<A> actions = _smdp.actions(state);
 			for (A action : actions) {
 				pavg += policy.aprob(state, action)
-						* gammaPPi(state, action, nextState);
+						* gammaPPi(state, action, tstate);
 			}
 			return pavg;
 		}
 	}
-	
-	private double gammaPPi(S state, A action, S terminalState){
+
+	private double gammaPPi(S state, A action, S terminalState) {
 		double gprob = 0;
 		Iterable<Integer> durs = _smdp.durations(state, action, terminalState);
-		for(Integer dur : durs){
+		for (Integer dur : durs) {
 			gprob += _smdp.dtprob(state, action, terminalState, dur, _df);
 		}
 		return gprob;
@@ -113,7 +138,7 @@ public class MatrixInversePolicyEvaluation<S, A> implements com.github.kingtim1.
 	 * @return a vector containing the immediate expected reinforcement at each
 	 *         state
 	 */
-	private RealVector rPi(StationaryPolicy<S,A> policy, List<S> states) {
+	private RealVector rPi(StationaryPolicy<S, A> policy, List<S> states) {
 		int n = _smdp.numberOfStates();
 		double[] rp = new double[n];
 
@@ -136,7 +161,7 @@ public class MatrixInversePolicyEvaluation<S, A> implements com.github.kingtim1.
 	 *            the expected reward for)
 	 * @return the expected reward of the state index by statei
 	 */
-	private double rPi(StationaryPolicy<S,A> policy, List<S> states, int statei) {
+	private double rPi(StationaryPolicy<S, A> policy, List<S> states, int statei) {
 		S state = states.get(statei);
 		if (policy.isDeterministic()) {
 			A action = policy.policy(state);
@@ -168,8 +193,9 @@ public class MatrixInversePolicyEvaluation<S, A> implements com.github.kingtim1.
 		RealVector b = rPi(policy, states);
 
 		// Solve for V^{\pi}
-		RealMatrix Ainv = MatrixUtils.inverse(A);
-		RealVector vpi = Ainv.operate(b);
+		SingularValueDecomposition decomp = new SingularValueDecomposition(A);
+		DecompositionSolver dsolver = decomp.getSolver();
+		RealVector vpi = dsolver.solve(b);
 
 		// Construct the value function
 		Map<S, Double> valueMap = new HashMap<S, Double>();

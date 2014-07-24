@@ -72,7 +72,7 @@ public abstract class AbstractMDP<S, A> extends AbstractSMDP<S,A> implements MDP
 	@Override
 	public double dtprob(S state, A action, S terminalState, Integer duration,
 			DiscountFactor gamma) {
-		return tprob(state, action, terminalState, duration);
+		return gamma.doubleValue() * tprob(state, action, terminalState, duration);
 	}
 
 	@Override

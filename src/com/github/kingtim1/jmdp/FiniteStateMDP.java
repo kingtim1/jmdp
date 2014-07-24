@@ -71,7 +71,7 @@ public abstract class FiniteStateMDP<S, A> extends FiniteStateSMDP<S,A> implemen
 	@Override
 	public double dtprob(S state, A action, S terminalState, Integer duration,
 			DiscountFactor gamma) {
-		return tprob(state, action, terminalState, duration);
+		return gamma.doubleValue() * tprob(state, action, terminalState, duration);
 	}
 
 	@Override
@@ -86,69 +86,69 @@ public abstract class FiniteStateMDP<S, A> extends FiniteStateSMDP<S,A> implemen
 		return durs;
 	}
 
-	/**
-	 * Returns the expected reinforcement at the specified state-action pair.
-	 * 
-	 * @param mdp a finite-state MDP
-	 * @param state
-	 *            a state
-	 * @param action
-	 *            an action
-	 * @return the expected reinforcement for (state, action)
-	 */
-	public static <S, A> double avgR(FiniteStateMDP<S, A> mdp, S state, A action) {
-		double ravg = 0;
-		Iterable<S> nextStates = mdp.successors(state, action);
-		for (S nextState : nextStates) {
-			double tprob = mdp.tprob(state, action, nextState);
-			double r = mdp.r(state, action, nextState);
-			ravg += tprob * r;
-		}
-		return ravg;
-	}
-
-	/**
-	 * Returns the expected value associated with the state immediately
-	 * transitioned to from (state, action).
-	 * 
-	 * @param mdp a finite-state MDP
-	 * @param state a state
-	 * @param action an action
-	 * @param vfunc an estimate of the value function
-	 * @return the expected value of the next state
-	 */
-	public static <S, A> double avgNextV(FiniteStateMDP<S, A> mdp, S state,
-			A action, DiscountedVFunction<S> vfunc) {
-		double avgV = 0;
-		Iterable<S> nextStates = mdp.successors(state, action);
-		for (S nextState : nextStates) {
-			double tprob = mdp.tprob(state, action, nextState);
-			double v = vfunc.value(nextState);
-			avgV += tprob * v;
-		}
-		return avgV;
-	}
-	
-	/**
-	 * Returns the expected value associated with the state immediately
-	 * transitioned to from (state, action, timestep).
-	 * 
-	 * @param mdp a finite-state MDP
-	 * @param state a state
-	 * @param action an action
-	 * @param timestep the current timestep
-	 * @param vfunc an estimate of the value function
-	 * @return the expected value of the next state
-	 */
-	public static <S, A> double avgNextV(FiniteStateMDP<S, A> mdp, S state,
-			A action, Integer timestep, VFunction<S> vfunc) {
-		double avgV = 0;
-		Iterable<S> nextStates = mdp.successors(state, action);
-		for (S nextState : nextStates) {
-			double tprob = mdp.tprob(state, action, nextState);
-			double v = vfunc.value(nextState, timestep + 1);
-			avgV += tprob * v;
-		}
-		return avgV;
-	}
+//	/**
+//	 * Returns the expected reinforcement at the specified state-action pair.
+//	 * 
+//	 * @param mdp a finite-state MDP
+//	 * @param state
+//	 *            a state
+//	 * @param action
+//	 *            an action
+//	 * @return the expected reinforcement for (state, action)
+//	 */
+//	public static <S, A> double avgR(FiniteStateMDP<S, A> mdp, S state, A action) {
+//		double ravg = 0;
+//		Iterable<S> nextStates = mdp.successors(state, action);
+//		for (S nextState : nextStates) {
+//			double tprob = mdp.tprob(state, action, nextState);
+//			double r = mdp.r(state, action, nextState);
+//			ravg += tprob * r;
+//		}
+//		return ravg;
+//	}
+//
+//	/**
+//	 * Returns the expected value associated with the state immediately
+//	 * transitioned to from (state, action).
+//	 * 
+//	 * @param mdp a finite-state MDP
+//	 * @param state a state
+//	 * @param action an action
+//	 * @param vfunc an estimate of the value function
+//	 * @return the expected value of the next state
+//	 */
+//	public static <S, A> double avgNextV(FiniteStateMDP<S, A> mdp, S state,
+//			A action, DiscountedVFunction<S> vfunc) {
+//		double avgV = 0;
+//		Iterable<S> nextStates = mdp.successors(state, action);
+//		for (S nextState : nextStates) {
+//			double tprob = mdp.tprob(state, action, nextState);
+//			double v = vfunc.value(nextState);
+//			avgV += tprob * v;
+//		}
+//		return avgV;
+//	}
+//	
+//	/**
+//	 * Returns the expected value associated with the state immediately
+//	 * transitioned to from (state, action, timestep).
+//	 * 
+//	 * @param mdp a finite-state MDP
+//	 * @param state a state
+//	 * @param action an action
+//	 * @param timestep the current timestep
+//	 * @param vfunc an estimate of the value function
+//	 * @return the expected value of the next state
+//	 */
+//	public static <S, A> double avgNextV(FiniteStateMDP<S, A> mdp, S state,
+//			A action, Integer timestep, VFunction<S> vfunc) {
+//		double avgV = 0;
+//		Iterable<S> nextStates = mdp.successors(state, action);
+//		for (S nextState : nextStates) {
+//			double tprob = mdp.tprob(state, action, nextState);
+//			double v = vfunc.value(nextState, timestep + 1);
+//			avgV += tprob * v;
+//		}
+//		return avgV;
+//	}
 }

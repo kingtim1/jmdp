@@ -27,8 +27,10 @@
 
 package com.github.kingtim1.jmdp.discounted;
 
+import com.github.kingtim1.jmdp.ActionSet;
 import com.github.kingtim1.jmdp.DP;
 import com.github.kingtim1.jmdp.FiniteStateMDP;
+import com.github.kingtim1.jmdp.FiniteStateSMDP;
 
 /**
  * Implements the classic Value Iteration (VI) algorithm with asynchronous
@@ -43,28 +45,28 @@ import com.github.kingtim1.jmdp.FiniteStateMDP;
  * @param <A>
  *            the action type
  */
-public class ValueIteration<S, A> implements DP<DiscountedVFunction<S>> {
+public class ValueIteration<S, A> implements DP<DiscountedQFunction<S,A>> {
 
-	private FiniteStateMDP<S, A> _mdp;
+	private FiniteStateSMDP<S, A> _smdp;
 	private DiscountFactor _df;
 	private int _maxIterations;
 	private double _theta;
 
-	public ValueIteration(FiniteStateMDP<S, A> mdp, DiscountFactor df,
+	public ValueIteration(FiniteStateSMDP<S, A> smdp, DiscountFactor df,
 			int maxIterations, double convergenceThreshold) {
-		_mdp = mdp;
+		_smdp = smdp;
 		_df = df;
 		_maxIterations = maxIterations;
 		_theta = convergenceThreshold;
 	}
 
 	@Override
-	public DiscountedVFunction<S> run() {
+	public DiscountedQFunction<S,A> run() {
 		MapVFunction<S> vfunc = new MapVFunction<S>(0);
 
 		for (int i = 0; i < _maxIterations; i++) {
 			double delta = 0;
-			Iterable<S> states = _mdp.states();
+			Iterable<S> states = _smdp.states();
 			for (S state : states) {
 				double oldV = vfunc.value(state);
 				double newV = backup(state, vfunc);
@@ -77,7 +79,22 @@ public class ValueIteration<S, A> implements DP<DiscountedVFunction<S>> {
 			}
 		}
 
-		return vfunc;
+		return toQ(vfunc);
+	}
+	
+	public DiscountedQFunction<S,A> toQ(DiscountedVFunction<S> vfunc){
+		MapQFunction<S, A> qfunc = new MapQFunction<S, A>(_smdp.actionSet(),
+				0.0, _smdp.opType());
+		Iterable<S> states = _smdp.states();
+		ActionSet<S, A> actionSet = _smdp.actionSet();
+		for (S state : states) {
+			for (A action : actionSet.actions(state)) {
+				double qval = qbackup(state, action, vfunc);
+				qfunc.set(state, action, qval);
+			}
+		}
+
+		return qfunc;
 	}
 
 	/**
@@ -91,16 +108,20 @@ public class ValueIteration<S, A> implements DP<DiscountedVFunction<S>> {
 	 */
 	public double backup(S state, DiscountedVFunction<S> vfunc) {
 		Double bestV = null;
-		Iterable<A> actions = _mdp.actions(state);
+		Iterable<A> actions = _smdp.actions(state);
 		for (A action : actions) {
-			double val = FiniteStateMDP.avgR(_mdp, state, action)
-					+ _df.doubleValue()
-					* FiniteStateMDP.avgNextV(_mdp, state, action, vfunc);
-			if (bestV == null || _mdp.opType().firstIsBetter(val, bestV)) {
+			double val = qbackup(state, action, vfunc);
+			if (bestV == null || _smdp.opType().firstIsBetter(val, bestV)) {
 				bestV = val;
 			}
 		}
 		return bestV.doubleValue();
+	}
+	
+	public double qbackup(S state, A action, DiscountedVFunction<S> vfunc){
+		double avgR = FiniteStateSMDP.avgR(_smdp, state, action);
+		double avgNextV = FiniteStateSMDP.avgNextV(_smdp, state, action, vfunc, _df);
+		return avgR + avgNextV;
 	}
 
 }
