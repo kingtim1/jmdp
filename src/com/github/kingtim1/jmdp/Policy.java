@@ -42,12 +42,16 @@ public interface Policy<S, A> {
 
 	/**
 	 * Selects an action-based on a given state and the current timestep. The
-	 * rules used to select an action may be stochastic or deterministic.
+	 * rules used to select an action may be stochastic or deterministic. The
+	 * timestep starts at 1 (not 0).
 	 * 
-	 * @param state a state
-	 * @param timestep the non-negative value representing a timestep
+	 * @param state
+	 *            a state
+	 * @param timestep
+	 *            the non-negative value representing a timestep (the first
+	 *            timestep is 1)
 	 * @return an action
 	 */
 	public A policy(S state, Integer timestep);
-	
+
 }

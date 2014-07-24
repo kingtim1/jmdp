@@ -28,8 +28,9 @@
 package com.github.kingtim1.jmdp;
 
 /**
- * A stationary policy decides which action conditional only on the current
- * state. Stationary policies may be stochastic or deterministic.
+ * A stationary policy selects actions conditional only on the current state. In
+ * other words, decisions made by a stationary policy are independent of the
+ * current timestep. Stationary policies may be stochastic or deterministic.
  * 
  * @author Timothy A. Mann
  * 
