@@ -79,14 +79,14 @@ public class MapQFunction<S, A> implements DiscountedQFunction<S, A> {
 
 	@Override
 	public double value(S state, A action) {
-		Map<A,Double> avals = MapUtil.get2ndMap(_qvals, state);
+		Map<A,Double> avals = MapUtil.getValueMap(_qvals, state);
 		double qval = MapUtil.getWithDefault(avals, action, _defaultValue);
 		return qval;
 	}
 
 	@Override
 	public double greedyValue(S state) {
-		Map<A,Double> avals = MapUtil.get2ndMap(_qvals, state);
+		Map<A,Double> avals = MapUtil.getValueMap(_qvals, state);
 		Double val = MapUtil.optimalValueSearch(avals, _opType);
 		if(val == null){
 			return _defaultValue;
@@ -97,7 +97,7 @@ public class MapQFunction<S, A> implements DiscountedQFunction<S, A> {
 
 	@Override
 	public A greedyAction(S state) {
-		Map<A,Double> avals = MapUtil.get2ndMap(_qvals, state);
+		Map<A,Double> avals = MapUtil.getValueMap(_qvals, state);
 		Map.Entry<A, Double> pair = MapUtil.optimalKeyValueSearch(avals, _opType);
 		if(pair == null){
 			return _actionSet.actions(state).get(0);
@@ -118,7 +118,7 @@ public class MapQFunction<S, A> implements DiscountedQFunction<S, A> {
 	 * @param value the value of (state, action)
 	 */
 	public void set(S state, A action, double value){
-		Map<A,Double> avals = MapUtil.get2ndMap(_qvals, state);
+		Map<A,Double> avals = MapUtil.getValueMap(_qvals, state);
 		avals.put(action, value);
 	}
 

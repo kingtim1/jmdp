@@ -1,3 +1,30 @@
+/**
+	MapUtil.java
+
+	===================================================================
+
+   Copyright 2014 Timothy A. Mann
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+	===================================================================
+
+	The research leading to these results has received funding from the 
+	European Research Council under the European Union's Seventh Framework 
+	Programme (FP/2007-2013) / ERC Grant Agreement n.306638.
+
+ */
+
 package com.github.kingtim1.jmdp.util;
 
 import java.util.AbstractMap;
@@ -64,7 +91,7 @@ public class MapUtil {
 	}
 
 	/**
-	 * Returns the 2nd map specified by a key to the top level map. If the 2nd
+	 * Returns the map stored as a value specified by a key to the top level map. If the 2nd
 	 * map is null, this method creates a new map instance, adds it to the top
 	 * level map with the specified key, and returns the new instance.
 	 * 
@@ -74,7 +101,7 @@ public class MapUtil {
 	 *            a to the top level map
 	 * @return a second level map
 	 */
-	public static <K1, K2, V> Map<K2, V> get2ndMap(Map<K1, Map<K2, V>> map,
+	public static <K1, K2, V> Map<K2, V> getValueMap(Map<K1, Map<K2, V>> map,
 			K1 key) {
 		Map<K2, V> innerMap = map.get(key);
 		if (innerMap == null) {

@@ -171,10 +171,10 @@ public class SMDPEstimator<S, A> extends FiniteStateSMDP<S, A> implements
 			return unknownR(state, action, terminalState, duration);
 		}
 
-		Map<A, Map<S, Map<Integer, Double>>> aRSum = MapUtil.get2ndMap(_rsum,
+		Map<A, Map<S, Map<Integer, Double>>> aRSum = MapUtil.getValueMap(_rsum,
 				state);
-		Map<S, Map<Integer, Double>> asRSum = MapUtil.get2ndMap(aRSum, action);
-		Map<Integer, Double> asdRSum = MapUtil.get2ndMap(asRSum, terminalState);
+		Map<S, Map<Integer, Double>> asRSum = MapUtil.getValueMap(aRSum, action);
+		Map<Integer, Double> asdRSum = MapUtil.getValueMap(asRSum, terminalState);
 		Double rsum = MapUtil.getWithDefault(asdRSum, duration, rmin());
 
 		return rsum / saCount;
@@ -328,7 +328,7 @@ public class SMDPEstimator<S, A> extends FiniteStateSMDP<S, A> implements
 	}
 
 	private void updateSuccessors(S state, A action, S terminalState) {
-		Map<A, Set<S>> asuccs = MapUtil.get2ndMap(_succs, state);
+		Map<A, Set<S>> asuccs = MapUtil.getValueMap(_succs, state);
 		Set<S> succStates = asuccs.get(action);
 		if (succStates == null) {
 			succStates = new HashSet<S>();
@@ -339,10 +339,10 @@ public class SMDPEstimator<S, A> extends FiniteStateSMDP<S, A> implements
 
 	private void updateDurations(S state, A action, S terminalState,
 			int duration) {
-		Map<A, Map<S, Set<Integer>>> adurations = MapUtil.get2ndMap(_durations,
+		Map<A, Map<S, Set<Integer>>> adurations = MapUtil.getValueMap(_durations,
 				state);
 		Map<S, Set<Integer>> asdurations = MapUtil
-				.get2ndMap(adurations, action);
+				.getValueMap(adurations, action);
 		Set<Integer> asddurations = asdurations.get(terminalState);
 		if (asddurations == null) {
 			asddurations = new HashSet<Integer>();
@@ -356,32 +356,32 @@ public class SMDPEstimator<S, A> extends FiniteStateSMDP<S, A> implements
 	}
 
 	private void incSACount(S state, A action) {
-		Map<A, Integer> aCounts = MapUtil.get2ndMap(_saCounts, state);
+		Map<A, Integer> aCounts = MapUtil.getValueMap(_saCounts, state);
 		MapUtil.inc(aCounts, action);
 	}
 
 	private void incSASCount(S state, A action, S terminalState) {
-		Map<A, Map<S, Integer>> aCounts = MapUtil.get2ndMap(_sasCounts, state);
-		Map<S, Integer> asCounts = MapUtil.get2ndMap(aCounts, action);
+		Map<A, Map<S, Integer>> aCounts = MapUtil.getValueMap(_sasCounts, state);
+		Map<S, Integer> asCounts = MapUtil.getValueMap(aCounts, action);
 		MapUtil.inc(asCounts, terminalState);
 	}
 
 	private void incSASDCount(S state, A action, S terminalState, int duration) {
-		Map<A, Map<S, Map<Integer, Integer>>> aCounts = MapUtil.get2ndMap(
+		Map<A, Map<S, Map<Integer, Integer>>> aCounts = MapUtil.getValueMap(
 				_sasdCounts, state);
-		Map<S, Map<Integer, Integer>> asCounts = MapUtil.get2ndMap(aCounts,
+		Map<S, Map<Integer, Integer>> asCounts = MapUtil.getValueMap(aCounts,
 				action);
-		Map<Integer, Integer> asdCounts = MapUtil.get2ndMap(asCounts,
+		Map<Integer, Integer> asdCounts = MapUtil.getValueMap(asCounts,
 				terminalState);
 		MapUtil.inc(asdCounts, duration);
 	}
 
 	private void updateR(S state, A action, S terminalState, int duration,
 			double r) {
-		Map<A, Map<S, Map<Integer, Double>>> aRSum = MapUtil.get2ndMap(_rsum,
+		Map<A, Map<S, Map<Integer, Double>>> aRSum = MapUtil.getValueMap(_rsum,
 				state);
-		Map<S, Map<Integer, Double>> asRSum = MapUtil.get2ndMap(aRSum, action);
-		Map<Integer, Double> asdRSum = MapUtil.get2ndMap(asRSum, terminalState);
+		Map<S, Map<Integer, Double>> asRSum = MapUtil.getValueMap(aRSum, action);
+		Map<Integer, Double> asdRSum = MapUtil.getValueMap(asRSum, terminalState);
 
 		Double rsum = asdRSum.get(duration);
 		if (rsum == null) {
@@ -396,22 +396,22 @@ public class SMDPEstimator<S, A> extends FiniteStateSMDP<S, A> implements
 	}
 
 	public int counts(S state, A action) {
-		Map<A, Integer> aCounts = MapUtil.get2ndMap(_saCounts, state);
+		Map<A, Integer> aCounts = MapUtil.getValueMap(_saCounts, state);
 		return MapUtil.getWithDefault(aCounts, action, 0);
 	}
 
 	public int counts(S state, A action, S terminalState) {
-		Map<A, Map<S, Integer>> aCounts = MapUtil.get2ndMap(_sasCounts, state);
-		Map<S, Integer> asCounts = MapUtil.get2ndMap(aCounts, action);
+		Map<A, Map<S, Integer>> aCounts = MapUtil.getValueMap(_sasCounts, state);
+		Map<S, Integer> asCounts = MapUtil.getValueMap(aCounts, action);
 		return MapUtil.getWithDefault(asCounts, terminalState, 0);
 	}
 
 	public int counts(S state, A action, S terminalState, Integer duration) {
-		Map<A, Map<S, Map<Integer, Integer>>> aCounts = MapUtil.get2ndMap(
+		Map<A, Map<S, Map<Integer, Integer>>> aCounts = MapUtil.getValueMap(
 				_sasdCounts, state);
-		Map<S, Map<Integer, Integer>> asCounts = MapUtil.get2ndMap(aCounts,
+		Map<S, Map<Integer, Integer>> asCounts = MapUtil.getValueMap(aCounts,
 				action);
-		Map<Integer, Integer> asdCounts = MapUtil.get2ndMap(asCounts,
+		Map<Integer, Integer> asdCounts = MapUtil.getValueMap(asCounts,
 				terminalState);
 		return MapUtil.getWithDefault(asdCounts, duration, 0);
 	}
